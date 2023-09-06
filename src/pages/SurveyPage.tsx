@@ -1,5 +1,11 @@
+import SurveyTable from '../components/SurveyTable';
+
 const SurveyPage = () => {
-  return <div>survey</div>
-}
+  return (
+    <>
+      <SurveyTable />
+    </>
+  );
+};
 
 export default SurveyPage;
