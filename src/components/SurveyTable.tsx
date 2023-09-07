@@ -1,18 +1,19 @@
 import * as XLSX from 'xlsx';
 import './survey-table.scss';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { surveyData } from '../data/surveyData';
 
 const SurveyTable = () => {
-  const workbook = XLSX.utils.book_new();
+  const [responseData, setResponseData] = useState(surveyData.BAI.문항);
 
-  const worksheet = XLSX.utils.json_to_sheet([
-    { 문항: '가끔씩 몸이 저리고 쑤시며 감각이 마비된 느낌을 받는다', 점수: 0 },
-    { 문항: '흥분된 느낌을 받는다', 점수: 1 },
-  ]);
+  const workbook = XLSX.utils.book_new();
+  // console.log('@@', responseData);
+
+  const worksheet = XLSX.utils.json_to_sheet(responseData);
 
   const createExcel = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'BAI');
-    XLSX.writeFile(workbook, 'sheetjs-react-example.xlsx');
+    XLSX.writeFile(workbook, 'sheetjs-react-example.csv');
   };
 
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -25,18 +26,31 @@ const SurveyTable = () => {
       if (file) {
         const reader = new FileReader();
 
-        reader.onload = function (file) {
-          const data = file.target?.result;
-          const workbook = XLSX.read(data, { type: 'binary' });
+        reader.onload = file => {
+          const result = file.target?.result;
 
-          const sheet = workbook.Sheets.BAI;
-          const jsonData = XLSX.utils.sheet_to_json(sheet);
+          if (result) {
+            const workbook = XLSX.read(result, { type: 'array' });
 
-          console.log(jsonData);
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+            console.log(jsonData);
+          }
         };
-        reader.readAsBinaryString(file);
+        reader.readAsArrayBuffer(file);
       }
     }
+  };
+
+  const handleRadioButton = (score: number, no: number) => {
+    const updateResponseData = [...responseData];
+
+    updateResponseData[no].응답내용 = surveyData.BAI.응답방식[score];
+    updateResponseData[no].응답점수 = `${score}`;
+
+    setResponseData(updateResponseData);
   };
 
   return (
@@ -45,34 +59,55 @@ const SurveyTable = () => {
         <thead>
           <tr>
             <th></th>
-            <th>전혀 느끼지 않았다</th>
-            <th>조금 느꼈다</th>
-            <th>상당히 느꼈다</th>
-            <th>심하게 느꼈다</th>
+            {Object.values(surveyData.BAI.응답방식).map((el, index) => (
+              <th key={index}>{el}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <th>1. 가끔씩 몸이 저리고 쑤시며 감각이 마비된 느낌을 받는다.</th>
-            <td>
-              <input type="radio" name="1" value={0} defaultChecked={false} />
-            </td>
-            <td>
-              <input type="radio" name="1" value={1} defaultChecked={true} />
-            </td>
-            <td>
-              <input type="radio" name="1" value={2} />
-            </td>
-            <td>
-              <input type="radio" name="1" value={3} />
-            </td>
-          </tr>
+          {surveyData.BAI.문항.map(el => (
+            <tr key={el.No}>
+              <th>{`${el.No}. ${el.문항}`}</th>
+              <td>
+                <input
+                  type="radio"
+                  name={`${el.No}`}
+                  value={0}
+                  onChange={() => handleRadioButton(0, el.No - 1)}
+                />
+              </td>
+              <td>
+                <input
+                  type="radio"
+                  name={`${el.No}`}
+                  value={1}
+                  onChange={() => handleRadioButton(1, el.No - 1)}
+                />
+              </td>
+              <td>
+                <input
+                  type="radio"
+                  name={`${el.No}`}
+                  value={2}
+                  onChange={() => handleRadioButton(2, el.No - 1)}
+                />
+              </td>
+              <td>
+                <input
+                  type="radio"
+                  name={`${el.No}`}
+                  value={3}
+                  onChange={() => handleRadioButton(3, el.No - 1)}
+                />
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
       <button onClick={() => createExcel()}>Excel</button>
       <input
         type="file"
-        accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         ref={fileRef}
         onChange={handleFileUpload}
       />
