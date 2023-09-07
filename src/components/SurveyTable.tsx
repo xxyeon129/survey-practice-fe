@@ -6,12 +6,12 @@ const SurveyTable = () => {
   const workbook = XLSX.utils.book_new();
 
   const worksheet = XLSX.utils.json_to_sheet([
-    { Name: 'John', Age: 30 },
-    { Name: 'Lala', Age: 40 },
+    { 문항: '가끔씩 몸이 저리고 쑤시며 감각이 마비된 느낌을 받는다', 점수: 0 },
+    { 문항: '흥분된 느낌을 받는다', 점수: 1 },
   ]);
 
   const createExcel = () => {
-    XLSX.utils.book_append_sheet(workbook, worksheet, '테스트1');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'BAI');
     XLSX.writeFile(workbook, 'sheetjs-react-example.xlsx');
   };
 
@@ -29,7 +29,7 @@ const SurveyTable = () => {
           const data = file.target?.result;
           const workbook = XLSX.read(data, { type: 'binary' });
 
-          const sheet = workbook.Sheets['테스트1'];
+          const sheet = workbook.Sheets.BAI;
           const jsonData = XLSX.utils.sheet_to_json(sheet);
 
           console.log(jsonData);
@@ -55,10 +55,10 @@ const SurveyTable = () => {
           <tr>
             <th>1. 가끔씩 몸이 저리고 쑤시며 감각이 마비된 느낌을 받는다.</th>
             <td>
-              <input type="radio" name="1" value={0} />
+              <input type="radio" name="1" value={0} defaultChecked={false} />
             </td>
             <td>
-              <input type="radio" name="1" value={1} />
+              <input type="radio" name="1" value={1} defaultChecked={true} />
             </td>
             <td>
               <input type="radio" name="1" value={2} />
