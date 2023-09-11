@@ -2,13 +2,12 @@ import * as XLSX from 'xlsx';
 import './survey-table.scss';
 import { useRef, useState } from 'react';
 import { surveyData } from '../data/surveyData';
+import { ResponseDataType } from '../shared/types/dataType';
 
 const SurveyTable = () => {
-  const [responseData, setResponseData] = useState(surveyData.BAI.문항);
+  const [responseData, setResponseData] = useState<ResponseDataType[]>(surveyData.BAI.문항);
 
   const workbook = XLSX.utils.book_new();
-  // console.log('@@', responseData);
-
   const worksheet = XLSX.utils.json_to_sheet(responseData);
 
   const createExcel = () => {
@@ -34,9 +33,9 @@ const SurveyTable = () => {
 
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            const jsonData: ResponseDataType[] = XLSX.utils.sheet_to_json(worksheet);
 
-            console.log(jsonData);
+            handleApplyFile(jsonData);
           }
         };
         reader.readAsArrayBuffer(file);
@@ -44,13 +43,17 @@ const SurveyTable = () => {
     }
   };
 
-  const handleRadioButton = (score: number, no: number) => {
+  const handleRadioButton = (score: string, no: number) => {
     const updateResponseData = [...responseData];
 
-    updateResponseData[no].응답내용 = surveyData.BAI.응답방식[score];
+    updateResponseData[no].응답내용 = surveyData.BAI.응답방식[Number(score)];
     updateResponseData[no].응답점수 = `${score}`;
 
     setResponseData(updateResponseData);
+  };
+
+  const handleApplyFile = (data: ResponseDataType[]) => {
+    setResponseData(data);
   };
 
   return (
@@ -66,14 +69,18 @@ const SurveyTable = () => {
         </thead>
         <tbody>
           {surveyData.BAI.문항.map(el => (
-            <tr key={el.No}>
+            <tr key={el.No + 100}>
               <th>{`${el.No}. ${el.문항}`}</th>
               <td>
                 <input
                   type="radio"
                   name={`${el.No}`}
                   value={0}
-                  onChange={() => handleRadioButton(0, el.No - 1)}
+                  checked={
+                    responseData[el.No - 1].응답점수 === '0' ||
+                    responseData[el.No - 1].응답점수 === 0
+                  }
+                  onChange={() => handleRadioButton('0', el.No - 1)}
                 />
               </td>
               <td>
@@ -81,7 +88,11 @@ const SurveyTable = () => {
                   type="radio"
                   name={`${el.No}`}
                   value={1}
-                  onChange={() => handleRadioButton(1, el.No - 1)}
+                  checked={
+                    responseData[el.No - 1].응답점수 === '1' ||
+                    responseData[el.No - 1].응답점수 === 1
+                  }
+                  onChange={() => handleRadioButton('1', el.No - 1)}
                 />
               </td>
               <td>
@@ -89,7 +100,11 @@ const SurveyTable = () => {
                   type="radio"
                   name={`${el.No}`}
                   value={2}
-                  onChange={() => handleRadioButton(2, el.No - 1)}
+                  checked={
+                    responseData[el.No - 1].응답점수 === '2' ||
+                    responseData[el.No - 1].응답점수 === 2
+                  }
+                  onChange={() => handleRadioButton('2', el.No - 1)}
                 />
               </td>
               <td>
@@ -97,7 +112,11 @@ const SurveyTable = () => {
                   type="radio"
                   name={`${el.No}`}
                   value={3}
-                  onChange={() => handleRadioButton(3, el.No - 1)}
+                  checked={
+                    responseData[el.No - 1].응답점수 === '3' ||
+                    responseData[el.No - 1].응답점수 === 3
+                  }
+                  onChange={() => handleRadioButton('3', el.No - 1)}
                 />
               </td>
             </tr>
