@@ -8,6 +8,7 @@ const Header = () => {
   const headerList = [
     { value: 'Home', path: PATH_URL.HOME },
     { value: 'Survey', path: PATH_URL.SURVEY },
+    { value: 'Email', path: PATH_URL.EMAIL },
     { value: 'Test', path: PATH_URL.TEST },
   ];
 
