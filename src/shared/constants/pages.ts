@@ -1,4 +1,6 @@
 export const PATH_URL = {
   HOME: '/',
-  SURVEY: '/survey'
-}
+  SURVEY: '/survey',
+  EMAIL: '/email',
+  TEST: '/test',
+};
