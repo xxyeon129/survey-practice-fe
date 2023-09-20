@@ -5,6 +5,7 @@ import SurveyPage from '../pages/SurveyPage';
 import Header from './Header';
 import Test from '../components/Test';
 import EmailJS from '../components/EmailJS';
+import Nodemailer from '../components/Nodemailer';
 
 const MainRouter = () => {
   return (
@@ -13,7 +14,7 @@ const MainRouter = () => {
       <Routes>
         <Route path={PATH_URL.HOME} element={<HomePage />} />
         <Route path={PATH_URL.SURVEY} element={<SurveyPage />} />
-        <Route path={PATH_URL.EMAIL} element={<EmailJS />} />
+        <Route path={PATH_URL.EMAIL} element={<Nodemailer />} />
         <Route path={PATH_URL.TEST} element={<Test />} />
       </Routes>
     </BrowserRouter>

@@ -3,6 +3,7 @@ import './survey-table.scss';
 import { useRef, useState } from 'react';
 import { surveyData } from '../data/surveyData';
 import { ResponseDataType } from '../shared/types/dataType';
+import axios from 'axios';
 
 const SurveyTable = () => {
   const [responseData, setResponseData] = useState<ResponseDataType[]>(surveyData.BAI.문항);
@@ -54,6 +55,28 @@ const SurveyTable = () => {
 
   const handleApplyFile = (data: ResponseDataType[]) => {
     setResponseData(data);
+  };
+
+  const sendFile = () => {
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'BAI');
+    const wbout = XLSX.write(workbook, { bookType: 'csv', type: 'array' });
+
+    const blob = new Blob([new Uint8Array(wbout)], { type: 'application/octet-stream' });
+    const formdata = new FormData();
+    formdata.append('file', blob, 'sendFileTest.csv');
+
+    try {
+      axios
+        .post('http://localhost:4444/upload', formdata, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then(res => console.log(res.data))
+        .catch(error => console.error('파일 업로드 실패'));
+    } catch (error) {
+      console.error('파일 업로드 중 오류: ', error);
+    }
   };
 
   return (
@@ -123,13 +146,14 @@ const SurveyTable = () => {
           ))}
         </tbody>
       </table>
-      <button onClick={() => createExcel()}>Excel</button>
+      <button onClick={() => createExcel()}>Excel 다운로드</button>
       <input
         type="file"
         accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         ref={fileRef}
         onChange={handleFileUpload}
       />
+      <button onClick={() => sendFile()}>이메일 전송</button>
     </>
   );
 };
